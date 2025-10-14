@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- Navbar Fragment -->
+    <nav th:fragment="navbar" class="bg-white shadow-lg fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center text-gray-900 text-xl font-bold transition-colors duration-300">
+                        <i class="fas fa-film mr-2"></i>
+                        <span class="text-blue-500">Healthcare</span>
+                        System
+                    </a>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <!-- Logged in user navigation -->
+                        <div th:if="${session.loggedInUser}" class="flex items-center space-x-4">
+                            <a th:href="@{/home}" class="text-gray-900 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300">
+                                <i class="fas fa-home mr-1"></i>Home
+                            </a>
+                            <a th:href="@{/movies}" class="text-gray-900 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300">
+                                <i class="fas fa-film mr-1"></i>AboutUs
+                            </a>
+                            <a href="#" class="text-gray-900 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300">
+                                <i class="fas fa-star mr-1"></i>ContactUs
+                            </a>
+                            
+                            <!-- User Dropdown -->
+                            <div class="relative ml-3">
+                                <button class="flex items-center text-gray-900 hover:text-gray-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300 dropdown-toggle" onclick="toggleDropdown()">
+                                    <i class="fas fa-user mr-1"></i>
+                                    <span th:text="${session.fullName ?: session.username}">User</span>
+                                    <i class="fas fa-chevron-down ml-1"></i>
+                                </button>
+                                <div id="dropdown-menu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden">
+                                    <a th:href="@{/profile}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:text-white transition-all duration-300">
+                                        <i class="fas fa-user-edit mr-2"></i>Profile
+                                    </a>
+                                    <a th:href="@{/change-password}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:text-white transition-all duration-300">
+                                        <i class="fas fa-key mr-2"></i>Change Password
+                                    </a>
+                                    <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:text-white transition-all duration-300">
+                                        <i class="fas fa-cog mr-2"></i>Settings
+                                    </a>
+                                    <hr class="my-1 border-gray-200">
+                                    <a th:href="@{/logout}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-600 hover:text-white transition-all duration-300">
+                                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Guest navigation -->
+                        <div th:unless="${session.loggedInUser}" class="flex items-center space-x-4">
+                            <a th:href="@{/login}" class="text-white hover:bg-blue-600 px-4 py-2 rounded font-medium bg-blue-500">
+                                <i class="fas fa-sign-in-alt mr-1"></i>Login
+                            </a>
+                            <a th:href="@{/register}" class="text-white hover:bg-blue-600 px-4 py-2 rounded font-medium bg-blue-500">
+                                <i class="fas fa-user-plus mr-1"></i>Register
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-white hover:text-yellow-300 p-2">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-gradient-to-r from-indigo-600 to-purple-700">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <!-- Logged in mobile menu -->
+                <div th:if="${session.loggedInUser}">
+                    <a th:href="@{/home}" class="block text-white hover:text-yellow-300 px-3 py-2 rounded-md text-base font-medium transition-colors duration-300">
+                        <i class="fas fa-home mr-2"></i>Home
+                    </a>
+                    <a th:href="@{/movies}" class="block text-white hover:text-yellow-300 px-3 py-2 rounded-md text-base font-medium transition-colors duration-300">
+                        <i class="fas fa-film mr-2"></i>AboutUs
+                    </a>
+                    <a href="#" class="block text-white hover:text-yellow-300 px-3 py-2 rounded-md text-base font-medium transition-colors duration-300">
+                        <i class="fas fa-star mr-2"></i>ContactUs
+                    </a>
+                    <hr class="my-2 border-purple-400">
+                    <a th:href="@{/profile}" class="block text-white hover:text-yellow-300 px-3 py-2 rounded-md text-base font-medium transition-colors duration-300">
+                        <i class="fas fa-user-edit mr-2"></i>Profile
+                    </a>
+                    <a th:href="@{/change-password}" class="block text-white hover:text-yellow-300 px-3 py-2 rounded-md text-base font-medium transition-colors duration-300">
+                        <i class="fas fa-key mr-2"></i>Change Password
+                    </a>
+                    <a href="#" class="block text-white hover:text-yellow-300 px-3 py-2 rounded-md text-base font-medium transition-colors duration-300">
+                        <i class="fas fa-cog mr-2"></i>Settings
+                    </a>
+                    <a th:href="@{/logout}" class="block text-white hover:text-yellow-300 px-3 py-2 rounded-md text-base font-medium transition-colors duration-300">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </a>
+                </div>
+
+                <!-- Guest mobile menu -->
+                <div th:unless="${session.loggedInUser}">
+                    <a th:href="@{/login}" class="block text-white hover:text-yellow-300 px-3 py-2 rounded-md text-base font-medium transition-colors duration-300">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Login
+                    </a>
+                    <a th:href="@{/register}" class="block text-white hover:text-yellow-300 px-3 py-2 rounded-md text-base font-medium transition-colors duration-300">
+                        <i class="fas fa-user-plus mr-2"></i>Register
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- JavaScript for dropdowns -->
+    <script th:fragment="navbar-scripts">
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdown-menu');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('dropdown-menu');
+            const button = event.target.closest('.dropdown-toggle');
+            
+            if (!button && dropdown && !dropdown.contains(event.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    </script>    
+</body>
+</html>

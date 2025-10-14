@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Movies App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>        
+        .profile-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 pt-20">
+    <!-- Include navbar -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Page Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                    <i class="fas fa-user-circle text-blue-500 mr-3"></i>My Profile
+                </h1>
+                <p class="text-gray-600">Manage your personal information and account settings</p>
+            </div>
+
+            <!-- Success Message -->
+            <div th:if="${param.success}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6 relative" role="alert">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <div>
+                        <strong class="font-bold">Success!</strong>
+                        <span class="block sm:inline">Profile updated successfully!</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Error Message -->
+            <div th:if="${error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 relative" role="alert">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <div>
+                        <strong class="font-bold">Error!</strong>
+                        <span class="block sm:inline" th:text="${error}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Profile Summary Card -->
+                <div class="lg:col-span-1">
+                    <div class="rounded-2xl shadow-lg p-6 border border-gray-200">
+                        <div class="text-center">
+                            <div class="w-24 h-24 bg-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <i class="fas fa-user text-white text-3xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2" th:text="${user.firstName + ' ' + user.lastName}">Full Name</h3>
+                            <p class="text-gray-600 mb-1" th:text="${'@' + user.username}">@username</p>
+                            <p class="text-gray-500 text-sm" th:text="${user.email}">email@example.com</p>
+                            
+                            <div class="mt-6 pt-6 border-t border-gray-200">
+                                <div class="flex justify-between text-sm text-gray-600">
+                                    <span>Member since:</span>
+                                    <span th:text="${#temporals.format(user.createdAt, 'MMM yyyy')}">Jan 2024</span>
+                                </div>
+                                <div class="flex justify-between text-sm text-gray-600 mt-2">
+                                    <span>Last updated:</span>
+                                    <span th:text="${#temporals.format(user.updatedAt, 'MMM dd, yyyy')}">Jan 15, 2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Form -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                            <i class="fas fa-edit text-blue-500 mr-2"></i>Edit Profile
+                        </h2>
+                        
+                        <form th:action="@{/profile}" th:object="${userProfile}" method="post" class="space-y-6">
+                            <!-- Basic Information Section -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- First Name -->
+                                <div>
+                                    <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fas fa-user mr-1 text-blue-500"></i>First Name
+                                    </label>
+                                    <input type="text" 
+                                           th:field="*{firstName}" 
+                                           th:class="${#fields.hasErrors('firstName')} ? 'w-full px-4 py-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all duration-300' : 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300'"
+                                           id="firstName" 
+                                           placeholder="Enter first name">
+                                    <div th:if="${#fields.hasErrors('firstName')}" class="mt-2 text-red-600 text-sm">
+                                        <span th:errors="*{firstName}"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Last Name -->
+                                <div>
+                                    <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fas fa-user mr-1 text-blue-500"></i>Last Name
+                                    </label>
+                                    <input type="text" 
+                                           th:field="*{lastName}" 
+                                           th:class="${#fields.hasErrors('lastName')} ? 'w-full px-4 py-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all duration-300' : 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300'"
+                                           id="lastName" 
+                                           placeholder="Enter last name">
+                                    <div th:if="${#fields.hasErrors('lastName')}" class="mt-2 text-red-600 text-sm">
+                                        <span th:errors="*{lastName}"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Username -->
+                            <div>
+                                <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-at mr-1 text-blue-500"></i>Username
+                                </label>
+                                <input type="text" 
+                                       th:field="*{username}" 
+                                       th:class="${#fields.hasErrors('username')} ? 'w-full px-4 py-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all duration-300' : 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300'"
+                                       id="username" 
+                                       placeholder="Enter username">
+                                <div th:if="${#fields.hasErrors('username')}" class="mt-2 text-red-600 text-sm">
+                                    <span th:errors="*{username}"></span>
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-envelope mr-1 text-blue-500"></i>Email Address
+                                </label>
+                                <input type="email" 
+                                       th:field="*{email}" 
+                                       th:class="${#fields.hasErrors('email')} ? 'w-full px-4 py-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all duration-300' : 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300'"
+                                       id="email" 
+                                       placeholder="Enter email address">
+                                <div th:if="${#fields.hasErrors('email')}" class="mt-2 text-red-600 text-sm">
+                                    <span th:errors="*{email}"></span>
+                                </div>
+                            </div>
+
+                            <!-- Password Section -->
+                            <div class="border-t border-gray-200 pt-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-800">
+                                        <i class="fas fa-lock mr-2 text-blue-500"></i>Password & Security
+                                    </h3>
+                                    <button type="button" onclick="openChangePasswordModal()" 
+                                            class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300">
+                                        <i class="fas fa-key mr-2"></i>Change Password
+                                    </button>
+                                </div>
+                                
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-shield-alt text-green-500 text-xl"></i>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm text-gray-700">
+                                                <strong>Password Status:</strong> Your password is secure and was last updated on 
+                                                <span th:text="${#temporals.format(user.updatedAt, 'MMM dd, yyyy')}">Jan 15, 2024</span>
+                                            </p>
+                                            <p class="text-xs text-gray-500 mt-1">
+                                                Click "Change Password" to update your account password for better security.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex flex-col sm:flex-row gap-4 pt-6">
+                                <button type="submit" 
+                                        class="flex-1 bg-blue-500 text-white font-semibold py-3 px-6 rounded-lg hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 uppercase tracking-wider">
+                                    <i class="fas fa-save mr-2"></i>Save Changes
+                                </button>
+                                
+                                <a th:href="@{/home}" 
+                                   class="flex-1 text-center bg-gray-500 text-white font-semibold py-3 px-6 rounded-lg hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300 uppercase tracking-wider">
+                                    <i class="fas fa-times mr-2"></i>Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 class="text-xl font-bold text-gray-800">
+                    <i class="fas fa-lock text-blue-500 mr-2"></i>Change Password
+                </h3>
+                <button onclick="closeChangePasswordModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-6">
+                <!-- User Info -->
+                <div class="flex items-center mb-6 pb-4 border-b border-gray-100">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800" th:text="${user.firstName + ' ' + user.lastName}">Full Name</h4>
+                        <p class="text-sm text-gray-600" th:text="${user.email}">email@example.com</p>
+                    </div>
+                </div>
+                
+                <!-- Error/Success Messages in Modal -->
+                <div id="modalMessages" class="mb-4"></div>
+                
+                <!-- Change Password Form -->
+                <form id="changePasswordForm" th:action="@{/change-password}" method="post" class="space-y-4">
+                    <!-- Current Password -->
+                    <div>
+                        <label for="modalCurrentPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-unlock-alt mr-1 text-blue-500"></i>Current Password
+                        </label>
+                        <input type="password" 
+                               id="modalCurrentPassword" 
+                               name="currentPassword"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
+                               placeholder="Enter current password"
+                               required>
+                    </div>
+
+                    <!-- New Password -->
+                    <div>
+                        <label for="modalNewPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock mr-1 text-blue-500"></i>New Password
+                        </label>
+                        <input type="password" 
+                               id="modalNewPassword" 
+                               name="newPassword"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
+                               placeholder="Enter new password"
+                               minlength="6"
+                               required>
+                    </div>
+
+                    <!-- Confirm New Password -->
+                    <div>
+                        <label for="modalConfirmNewPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock mr-1 text-blue-500"></i>Confirm New Password
+                        </label>
+                        <input type="password" 
+                               id="modalConfirmNewPassword" 
+                               name="confirmNewPassword"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
+                               placeholder="Confirm new password"
+                               minlength="6"
+                               required>
+                    </div>
+
+                    <!-- Password Requirements -->
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-info-circle text-blue-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-xs text-blue-700">
+                                    <strong>Requirements:</strong> At least 6 characters, new passwords must match.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="flex flex-col sm:flex-row gap-3 p-6 border-t border-gray-200">
+                <button type="submit" form="changePasswordForm"
+                        class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold py-3 px-4 rounded-lg hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300">
+                    <i class="fas fa-save mr-2"></i>Change Password
+                </button>
+                <button type="button" onclick="closeChangePasswordModal()"
+                        class="flex-1 bg-gray-500 text-white font-semibold py-3 px-4 rounded-lg hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Include navbar scripts -->
+    <div th:replace="~{fragments/navbar :: navbar-scripts}"></div>
+
+    <script>
+        // Modal functionality
+        function openChangePasswordModal() {
+            document.getElementById('changePasswordModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            // Clear form
+            document.getElementById('changePasswordForm').reset();
+            document.getElementById('modalMessages').innerHTML = '';
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('changePasswordModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeChangePasswordModal();
+            }
+        });
+
+        // Password validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPassword = document.getElementById('modalCurrentPassword');
+            const newPassword = document.getElementById('modalNewPassword');
+            const confirmNewPassword = document.getElementById('modalConfirmNewPassword');
+            
+            function validatePasswords() {
+                // Check if new passwords match
+                if (newPassword.value && confirmNewPassword.value) {
+                    if (newPassword.value !== confirmNewPassword.value) {
+                        confirmNewPassword.setCustomValidity('Passwords do not match');
+                    } else {
+                        confirmNewPassword.setCustomValidity('');
+                    }
+                }
+                
+                // Check if new password is different from current password
+                if (currentPassword.value && newPassword.value) {
+                    if (currentPassword.value === newPassword.value) {
+                        newPassword.setCustomValidity('New password must be different from current password');
+                    } else if (newPassword.value === confirmNewPassword.value) {
+                        newPassword.setCustomValidity('');
+                    }
+                }
+            }
+            
+            currentPassword.addEventListener('input', validatePasswords);
+            newPassword.addEventListener('input', validatePasswords);
+            confirmNewPassword.addEventListener('input', validatePasswords);
+        });
+
+        // Form submission handling
+        document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Changing...';
+            
+            // Submit form via fetch
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    // Success - redirect to profile with success message
+                    window.location.href = response.url;
+                } else {
+                    return response.text();
+                }
+            })
+            .then(html => {
+                if (html) {
+                    // Parse error from response
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const errorElement = doc.querySelector('[th\\:text="${error}"]') || doc.querySelector('.text-red-600');
+                    
+                    if (errorElement) {
+                        showModalMessage(errorElement.textContent, 'error');
+                    } else {
+                        showModalMessage('An error occurred. Please try again.', 'error');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showModalMessage('An error occurred. Please try again.', 'error');
+            })
+            .finally(() => {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
+        });
+
+        function showModalMessage(message, type) {
+            const messagesDiv = document.getElementById('modalMessages');
+            const alertClass = type === 'error' ? 'bg-red-100 border-red-400 text-red-700' : 'bg-green-100 border-green-400 text-green-700';
+            const iconClass = type === 'error' ? 'fas fa-exclamation-triangle' : 'fas fa-check-circle';
+            
+            messagesDiv.innerHTML = `
+                <div class="${alertClass} px-4 py-3 rounded-lg border relative" role="alert">
+                    <div class="flex items-center">
+                        <i class="${iconClass} mr-2"></i>
+                        <span>${message}</span>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+
+</body>
+</html>
