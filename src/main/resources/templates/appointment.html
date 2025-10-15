@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointments - HealthCare</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="min-h-screen bg-gray-50 pt-20">
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container mx-auto px-4 py-10">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-blue-600 mb-2">
+                <i class="fas fa-calendar-check mr-2"></i>Book Your Appointment
+            </h1>
+            <p class="text-gray-600">Manage your upcoming appointments easily</p>
+        </div>
+
+        <!-- Appointment Booking Section -->
+        <div class="bg-white shadow-lg rounded-2xl p-8 mb-10 border-t-8 border-blue-500">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">
+                <i class="fas fa-stethoscope text-blue-500 mr-2"></i>Select Doctor & Time Slot
+            </h2>
+
+            <form th:action="@{/appointments/book}" method="post" class="space-y-6">
+                <!-- Doctor selection -->
+                <div>
+                    <label for="doctor" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-user-md mr-1 text-blue-500"></i>Doctor
+                    </label>
+                    <select name="doctorId" id="doctor"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300">
+                        <option value="">Select a doctor...</option>
+                        <option th:each="doctor : ${doctors}" th:value="${doctor.id}"
+                                th:text="${doctor.name + ' (' + doctor.specialization + ')'}"></option>
+                    </select>
+                </div>
+
+                <!-- Slot selection -->
+                <div>
+                    <label for="slot" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-clock mr-1 text-blue-500"></i>Available Slots
+                    </label>
+                    <select name="slotId" id="slot"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300">
+                        <option value="">Select a time slot...</option>
+                        <option th:each="slot : ${slots}" th:value="${slot.id}"
+                                th:text="${#temporals.format(slot.startTime, 'MMM dd, yyyy - HH:mm')} + ' to ' + ${#temporals.format(slot.endTime, 'HH:mm')}"></option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit"
+                            class="bg-blue-500 text-white font-semibold py-3 px-6 rounded-lg hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300">
+                        <i class="fas fa-calendar-plus mr-2"></i>Book Appointment
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Appointment List -->
+        <div class="bg-white shadow-lg rounded-2xl p-8 border-t-8 border-blue-500">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">
+                <i class="fas fa-list text-blue-500 mr-2"></i>My Appointments
+            </h2>
+
+            <div th:if="${appointments.isEmpty()}" class="text-gray-500 text-center py-6">
+                <i class="fas fa-calendar-times text-gray-400 text-4xl mb-2"></i>
+                <p>No appointments booked yet.</p>
+            </div>
+
+            <div th:if="${!appointments.isEmpty()}" class="space-y-6">
+                <div th:each="appt : ${appointments}"
+                     class="border border-gray-200 rounded-lg p-4 flex justify-between items-center hover:shadow transition-all duration-300">
+                    <div>
+                        <h3 class="font-bold text-gray-800" th:text="${appt.doctorName}">Doctor Name</h3>
+                        <p class="text-sm text-gray-600">
+                            <i class="fas fa-clock text-blue-500 mr-1"></i>
+                            <span th:text="${#temporals.format(appt.appointmentTime, 'MMM dd, yyyy - HH:mm')}"></span>
+                        </p>
+                        <p class="text-sm text-gray-500">
+                            Status:
+                            <span th:text="${appt.status}" th:classappend="${appt.status == 'BOOKED'} ? 'text-green-600' : 'text-red-500'"></span>
+                        </p>
+                    </div>
+                    <form th:action="@{/appointments/cancel}" method="post">
+                        <input type="hidden" name="appointmentId" th:value="${appt.id}" />
+                        <button type="submit"
+                                class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition">
+                            <i class="fas fa-times mr-1"></i>Cancel
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/navbar :: navbar-scripts}"></div>
+
+<script>
+    document.getElementById('doctor').addEventListener('change', function () {
+        const doctorId = this.value;
+        const slotDropdown = document.getElementById('slot');
+
+        if (doctorId) {
+            fetch(`/appointments/slots/${doctorId}`)
+                .then(response => response.json())
+                .then(slots => {
+                    // Clear existing options
+                    slotDropdown.innerHTML = '<option value="">Select a time slot...</option>';
+
+                    // Populate new options
+                    slots.forEach(slot => {
+                        const option = document.createElement('option');
+                        option.value = slot.id;
+                        option.textContent = `${new Date(slot.startTime).toLocaleString()} to ${new Date(slot.endTime).toLocaleTimeString()}`;
+                        slotDropdown.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching slots:', error);
+                });
+        } else {
+            // Clear the dropdown if no doctor is selected
+            slotDropdown.innerHTML = '<option value="">Select a time slot...</option>';
+        }
+    });
+</script>
+</body>
+</html>
